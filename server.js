@@ -12,7 +12,12 @@ server.use(cors())
 server.get('/',(req,res) => {
     res.send("Welcome to Foodie")
 })
+// routers
+const userRouter = require('./src/features/user/router/UserRouter')
+const countryRouter = require('./src/features/countries/router/CountryRouter')
 
+server.use('/api',userRouter)
+server.use('/api',countryRouter)
 server.listen(process.env.PORT, process.env.HOST, () => {
     console.log(`Server running on http:/${process.env.HOST}:${process.env.PORT}`);
 });
