@@ -15,9 +15,11 @@ server.get('/',(req,res) => {
 // routers
 const userRouter = require('./src/features/user/router/UserRouter')
 const countryRouter = require('./src/features/countries/router/CountryRouter')
+const categoryRouter = require('./src/features/categories/router/CategoriesRouter')
 
 server.use('/api',userRouter)
 server.use('/api',countryRouter)
+server.use('/api',categoryRouter)
 server.listen(process.env.PORT, process.env.HOST, () => {
     console.log(`Server running on http:/${process.env.HOST}:${process.env.PORT}`);
 });
