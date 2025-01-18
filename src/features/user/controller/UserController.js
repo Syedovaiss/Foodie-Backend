@@ -6,6 +6,7 @@ const moment = require('moment')
 const jwt = require('jsonwebtoken')
 const imageConfig = require('../../../utils/ImageConfig')
 const path = require('path')
+const fs = require('fs')
 
 exports.registerUser = async (req, res) => {
     const { name, email, password } = req.body
@@ -149,7 +150,6 @@ const generateToken = (doc) => {
 
 
 exports.addUserInfo = async (req, res) => {
-
     const token = req.header('Authorization')
     const userId = authHelper.getUserId(token)
     const { fullName, country, phoneNumber } = req.body
@@ -163,15 +163,24 @@ exports.addUserInfo = async (req, res) => {
         })
     } else {
         try {
-            const user = await db.collection(COLLECTIONS.USER).doc(userId)
-            const info = {
-                fullname: fullName,
-                country: country,
-                phoneNumber: phoneNumber
-            }
-            user.update(info)
-            return res.status(201).json({
-                message: "Info added successfully!"
+            await getCountryInfo(country).then(async (countryData) => {
+                console.log(countryData.dial_code);
+                
+                if(!authHelper.isValidPhone(phoneNumber,countryData.dial_code)) {
+                    return res.status(400).json( {
+                        message: `Phone number must starts with ${countryData.dial_code} `
+                    })
+                }
+                const user = await db.collection(COLLECTIONS.USER).doc(userId)
+                const info = {
+                    fullname: fullName,
+                    country: country,
+                    phoneNumber: phoneNumber
+                }
+                user.update(info)
+                return res.status(201).json({
+                    message: "Info added successfully!"
+                })
             })
         } catch (error) {
             return res.status(500).json({
@@ -195,7 +204,7 @@ exports.updateProfilePhoto = async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded.' });
         }
         const filePath = path.join('uploads', req.file.filename);
-        // Save the file path in the database
+
         try {
             const token = req.header('Authorization')
             const userId = authHelper.getUserId(token)
@@ -221,14 +230,14 @@ exports.getUserProfile = async (req, res) => {
     const userId = authHelper.getUserId(token)
     const data = db.collection(COLLECTIONS.USER).doc(userId)
     await data.get().then((result) => {
-        const user =  result.data()
+        const user = result.data()
         let response = {
             phoneNumber: user.phoneNumber,
             email: user.email,
-            country:user.country,
-            avatar:user.avatar
+            country: user.country,
+            avatar: user.avatar
         }
-        if(helper.isEmpty(user.fullname)) {
+        if (helper.isEmpty(user.fullname)) {
             response.name = user.name
         } else {
             response.name = user.fullname
@@ -244,3 +253,26 @@ exports.getUserProfile = async (req, res) => {
     })
 
 }
+
+const getCountryInfo = (country) => {
+    const filePath = path.join(__dirname, '../../../assets', 'countries.json');
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                return reject(new Error('Error reading file'));
+            }
+
+            try {
+                const jsonData = JSON.parse(data);
+                const countryInfo = jsonData.find(item => item.name.toLowerCase() === country.toLowerCase());
+                if (countryInfo) {
+                    return resolve(countryInfo);
+                } else {
+                    return resolve(null); // If country not found, resolve with null
+                }
+            } catch (parseError) {
+                return reject(new Error('Error parsing JSON'));
+            }
+        });
+    });
+};

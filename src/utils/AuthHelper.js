@@ -22,6 +22,10 @@ module.exports = {
         const phoneRegex = /^03\d{9}$/;
         return phoneRegex.test(phone)
     },
+    isValidPhone: (phone, countryCode) => {
+        const phoneRegex = new RegExp(`^\\+${countryCode}`);
+        return phoneRegex.test(phone);
+    },
     getUserId: (headerToken) => {
         const token = headerToken?.replace('Bearer ', '');
         if (!token) {
