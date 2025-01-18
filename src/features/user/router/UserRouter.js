@@ -6,6 +6,4 @@ authRouter.post('/sign-in',authController.signIn)
 authRouter.post('/add-bio',authenticator,authController.addUserInfo)
 authRouter.post('/add-profile-picture',authenticator,authController.updateProfilePhoto)
 authRouter.get('/profile',authenticator,authController.getUserProfile)
-authRouter.post('verify-otp',authenticator,authController.verifyOTP)
-authRouter.post('reset-password',authController.resetPassword)
 module.exports = authRouter

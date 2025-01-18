@@ -4,6 +4,8 @@ const authHelper = require('../../../utils/AuthHelper')
 const { COLLECTIONS } = require('../../../utils/Constants')
 const moment = require('moment')
 const jwt = require('jsonwebtoken')
+const imageConfig = require('../../../utils/ImageConfig')
+const path = require('path')
 
 exports.registerUser = async (req, res) => {
     const { name, email, password } = req.body
@@ -106,11 +108,11 @@ exports.signIn = async (req, res) => {
                     const userPassword = userData.password;
                     const isPasswordMatches = authHelper.comparePassword(password, userPassword)
                     if (isPasswordMatches) {
-                       const token = generateToken(doc);
-                       res.status(200).json({
-                        data:token,
-                        message: "Login success!"
-                       })
+                        const token = generateToken(doc);
+                        res.status(200).json({
+                            data: token,
+                            message: "Login success!"
+                        })
                     } else {
                         res.status(400).json({
                             message: "Please enter a valid password!"
@@ -148,24 +150,97 @@ const generateToken = (doc) => {
 
 exports.addUserInfo = async (req, res) => {
 
+    const token = req.header('Authorization')
+    const userId = authHelper.getUserId(token)
+    const { fullName, country, phoneNumber } = req.body
+    if (helper.isEmpty(country)) {
+        return res.status(400).json({
+            message: "Please enter a valid country"
+        })
+    } else if (helper.isEmpty(phoneNumber)) {
+        return res.status(400).json({
+            message: "Please enter a valid phone"
+        })
+    } else {
+        try {
+            const user = await db.collection(COLLECTIONS.USER).doc(userId)
+            const info = {
+                fullname: fullName,
+                country: country,
+                phoneNumber: phoneNumber
+            }
+            user.update(info)
+            return res.status(201).json({
+                message: "Info added successfully!"
+            })
+        } catch (error) {
+            return res.status(500).json({
+                message: error
+            })
+        }
+
+    }
 }
 
 
 exports.updateProfilePhoto = async (req, res) => {
+    imageConfig.upload(req, res, async (error) => {
+        if (error) {
+            return res.status(400).json({
+                message: "Something went wrong while saving image."
+            })
+        }
 
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded.' });
+        }
+        const filePath = path.join('uploads', req.file.filename);
+        // Save the file path in the database
+        try {
+            const token = req.header('Authorization')
+            const userId = authHelper.getUserId(token)
+            const user = await db.collection(COLLECTIONS.USER).doc(userId)
+            const imageInfo = {
+                avatar: filePath
+            }
+            user.update(imageInfo)
+            return res.status(201).json({
+                message: "Image added successfully!"
+            })
+
+        } catch (err) {
+            res.status(500).json({ error: 'Failed to save image in database.', details: err });
+        }
+    })
 }
 
 
 exports.getUserProfile = async (req, res) => {
 
-}
+    const token = req.header('Authorization')
+    const userId = authHelper.getUserId(token)
+    const data = db.collection(COLLECTIONS.USER).doc(userId)
+    await data.get().then((result) => {
+        const user =  result.data()
+        let response = {
+            phoneNumber: user.phoneNumber,
+            email: user.email,
+            country:user.country,
+            avatar:user.avatar
+        }
+        if(helper.isEmpty(user.fullname)) {
+            response.name = user.name
+        } else {
+            response.name = user.fullname
+        }
+        return res.status(200).json({
+            data: response
+        })
+    }).catch(err => {
+        return res.status(500).json({
+            message: err
+        })
 
-
-exports.verifyOTP = async (req, res) => {
-
-}
-
-
-exports.resetPassword = async (req, res) => {
+    })
 
 }
