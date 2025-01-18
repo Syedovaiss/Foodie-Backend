@@ -1,3 +1,4 @@
-exports.COLLECTIONS = Object.freeze( {
-    USER:"user"
+exports.COLLECTIONS = Object.freeze({
+    USER: "user",
+    CATEGORIES: "categories"
 })
