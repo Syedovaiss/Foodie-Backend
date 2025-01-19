@@ -3,5 +3,7 @@ exports.COLLECTIONS = Object.freeze({
     CATEGORIES: "categories",
     FOOD: "food",
     TOPPINGS: "toppings",
-    SIDES:"sidelines"
+    SIDES:"sidelines",
+    PAYMENT:"payment-info",
+    ADDRESS:"address-info"
 })
