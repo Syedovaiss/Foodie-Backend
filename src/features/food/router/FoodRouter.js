@@ -1,0 +1,12 @@
+const router = require('express').Router()
+const controller = require('../controller/FoodController')
+router.post('/food/add', controller.addFood)
+router.get('/food/popular', controller.getPopularFood)
+router.post('/food/add-image',controller.addFoodImage)
+router.get('/food/all',controller.getAllFoodItems)
+router.get('/food/combos',controller.getCombos)
+router.post('/food/add-toppings',controller.addToppings)
+router.get('/food/toppings',controller.getToppings)
+router.post('/food/add-sides',controller.addSides)
+router.get('/food/sides',controller.getSides)
+module.exports = router

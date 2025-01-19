@@ -1,7 +1,7 @@
 
 const multer = require('multer')
 const path = require('path');
-const {uuid} = require('uuidv4')
+const {v4} = require('uuid')
 
 
 const storage = multer.diskStorage({
@@ -10,7 +10,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
       const extname = path.extname(file.originalname);
-      cb(null, Date.now() + uuid() + extname); // Use current timestamp and original file extension
+      cb(null, Date.now() + v4() + extname); // Use current timestamp and original file extension
     }
   });
   

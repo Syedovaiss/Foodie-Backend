@@ -2,6 +2,7 @@ const { isEmpty } = require("../../../utils/Helper")
 const db = require('../../../database/db')
 const { COLLECTIONS } = require("../../../utils/Constants")
 const moment = require('moment')
+const {v4} = require('uuid')
 
 exports.addCategory = async (req, res) => {
     const { title, description } = req.body
@@ -15,9 +16,10 @@ exports.addCategory = async (req, res) => {
         })
     } else {
         const data = {
+            id: v4(),
             title: title,
             description: description,
-            createAt: moment().valueOf()
+            createdAt: moment().valueOf()
         }
         try {
             await db.collection(COLLECTIONS.CATEGORIES).add(data).then(data => {
