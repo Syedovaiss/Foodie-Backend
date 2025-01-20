@@ -19,12 +19,14 @@ const categoryRouter = require('./src/features/categories/router/CategoriesRoute
 const foodRouter = require('./src/features/food/router/FoodRouter')
 const paymentRouter = require('./src/features/payments/router/PaymentRouter')
 const addressRouter = require('./src/features/address/router/AddressRouter')
+const orderRouter = require('./src/features/order/router/OrderRouter')
 server.use('/api',userRouter)
 server.use('/api',countryRouter)
 server.use('/api',categoryRouter)
 server.use('/api',foodRouter)
 server.use('/api',addressRouter)
 server.use('/api',paymentRouter)
+server.use('/api',orderRouter)
 server.listen(process.env.PORT, process.env.HOST, () => {
     console.log(`Server running on http:/${process.env.HOST}:${process.env.PORT}`);
 });
