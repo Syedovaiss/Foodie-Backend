@@ -41,6 +41,7 @@ exports.placeOrder = async (req, res) => {
                         productDescription: item.productDescription,
                         productImage: item.productImage,
                         level: item.level,
+                        levelTitle:item.levelTitle,
                         quantity: item.quantity,
                         toppings: item.toppings,
                         sides: item.sides
@@ -53,7 +54,8 @@ exports.placeOrder = async (req, res) => {
                     productDescription: item.productDescription,
                     productImage: item.productImage,
                     level: item.level,
-                    quantity: item.quantity
+                    levelTitle:item.levelTitle,
+                    quantity: item.quantity,
                 })
             }
 
@@ -65,8 +67,14 @@ exports.placeOrder = async (req, res) => {
         }
         const orderData = {
             userId: userId,
-            address: address,
-            payment: payment,
+            address: {
+                title:address.address,
+                type: address.addressType
+            },
+            payment: {
+                cardHolderName:payment.cardHolderName,
+                type:payment.cardType
+            },
             orderItems: orderItems,
             totalAmount: totalAmount,
             shippingFee: 250,
